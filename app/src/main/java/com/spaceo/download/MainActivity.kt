@@ -1,7 +1,6 @@
 package com.spaceo.download
 
 import android.Manifest
-import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -13,29 +12,28 @@ import android.os.Environment
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.net.toUri
 import com.downloader.OnCancelListener
 import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
 import com.downloader.PRDownloaderConfig
 import com.spaceo.download.databinding.ActivityMainBinding
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okio.*
 import java.io.*
 import java.net.URI
-import kotlin.coroutines.coroutineContext
 
 @DelicateCoroutinesApi
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    lateinit var url:String
-    lateinit var dirPath:String
-    lateinit var fileName:String
-    lateinit var downloadId :Any
-
+    lateinit var url: String
+    lateinit var dirPath: String
+    lateinit var fileName: String
+    lateinit var downloadId: Any
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,13 +73,14 @@ class MainActivity : AppCompatActivity() {
             GlobalScope.launch(Dispatchers.IO) {
 
                 url = binding.etURL.text.toString().trim()
-                dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    .toString() + "/Download Manager/"
+                dirPath =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                        .toString() + "/Download Manager/"
                 fileName = getFileName(url)
 
                 downloadId = PRDownloader.download(url, dirPath, fileName)
                     .build()
-                    .setOnStartOrResumeListener {  }
+                    .setOnStartOrResumeListener { }
                     .setOnPauseListener { }
                     .setOnCancelListener(object : OnCancelListener {
                         override fun onCancel() {}
@@ -90,7 +89,7 @@ class MainActivity : AppCompatActivity() {
                     .start(object : OnDownloadListener {
                         override fun onDownloadComplete() {}
                         override fun onError(error: com.downloader.Error?) {
-                            Log.e("Error","Not Successful")
+                            Log.e("Error", "Not Successful")
                         }
 
                         fun onError(error: Error?) {}
