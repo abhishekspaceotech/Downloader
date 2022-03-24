@@ -7,6 +7,7 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -45,18 +46,22 @@ class MainActivity : AppCompatActivity() {
 
         if (ActivityCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ),
-                312
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+
+                    ),
+                    312
+                )
+            }
         }
 
         PRDownloader.initialize(this)
@@ -76,6 +81,7 @@ class MainActivity : AppCompatActivity() {
 
                 downloadId = PRDownloader.download(url, dirPath, fileName)
                     .build()
+                    .setOnStartOrResumeListener {  }
                     .setOnPauseListener { }
                     .setOnCancelListener(object : OnCancelListener {
                         override fun onCancel() {}
@@ -89,9 +95,6 @@ class MainActivity : AppCompatActivity() {
 
                         fun onError(error: Error?) {}
                     })
-
-                startDownloading(url)
-
             }
         }
 
